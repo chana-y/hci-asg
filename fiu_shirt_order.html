@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FIU Scavenger Hunt — Team Shirt Order</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; font-size: 14px; background: #f4f6f9; color: #222; }
+
+  /* HEADER */
+  .header { background: #003087; padding: 16px 24px; display: flex; align-items: center; gap: 14px; border-bottom: 3px solid #B6862C; }
+  .logo { width: 50px; height: 50px; background: #B6862C; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; font-size: 14px; letter-spacing: 1px; flex-shrink: 0; }
+  .header-text h1 { font-size: 18px; font-weight: bold; color: #fff; }
+  .header-text p { font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 3px; }
+
+  /* FORM BODY */
+  .form-body { padding: 20px 24px; max-width: 860px; margin: 0 auto; }
+
+  /* SECTION CARD */
+  .section { background: #fff; border: 1px solid #d4d8e0; border-radius: 8px; margin-bottom: 16px; overflow: hidden; }
+  .section-title { background: #003087; color: #fff; padding: 8px 16px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+  .section-body { padding: 16px; }
+
+  /* GRID LAYOUTS */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; }
+  .mb12 { margin-bottom: 12px; }
+
+  /* FORM FIELDS */
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 11px; font-weight: bold; color: #555; text-transform: uppercase; letter-spacing: 0.4px; }
+  .field input[type=text],
+  .field input[type=tel],
+  .field input[type=email],
+  .field input[type=number],
+  .field select {
+    height: 36px; padding: 0 10px; border: 1px solid #c8ccd6;
+    border-radius: 5px; font-size: 13px; color: #222; background: #fff; width: 100%;
+  }
+  .field input:focus, .field select:focus { outline: 2px solid #003087; outline-offset: 1px; }
+
+  /* RADIO & CHECKBOX */
+  .radio-group { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+  .opt { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+  .opt input[type=radio] { accent-color: #003087; width: 14px; height: 14px; }
+  .opt input[type=checkbox] { accent-color: #B6862C; width: 14px; height: 14px; }
+  .group-label { font-size: 11px; font-weight: bold; color: #555; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
+
+  /* SIZE CARDS */
+  .size-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .size-card { border: 1px solid #d0d4dc; border-radius: 7px; padding: 10px 8px; text-align: center; }
+  .size-card .size-label { font-size: 11px; font-weight: bold; color: #003087; text-transform: uppercase; margin-bottom: 6px; }
+  .size-card input[type=number] { width: 100%; height: 36px; border: 1px solid #d0d4dc; border-radius: 4px; text-align: center; font-size: 16px; font-weight: bold; color: #222; }
+  .size-card input[type=number]:focus { outline: 2px solid #003087; }
+
+  /* EXPRESS SHIPPING BOX */
+  .express-box { background: #fffbf0; border: 1px solid #e8c96a; border-radius: 7px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; margin-top: 10px; opacity: 0.4; pointer-events: none; }
+  .express-box.active { opacity: 1; pointer-events: auto; }
+  .express-label { font-size: 13px; font-weight: bold; }
+  .express-sub { font-size: 11px; color: #888; margin-top: 2px; }
+  .express-cost { font-size: 12px; color: #8a6000; font-weight: bold; }
+
+  /* TOTAL BAR */
+  .total-bar { background: #003087; border-radius: 8px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .total-lhs .lbl { color: rgba(255,255,255,0.65); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .total-lhs .detail { color: rgba(255,255,255,0.45); font-size: 11px; margin-top: 3px; }
+  .total-amount { font-size: 30px; font-weight: bold; color: #B6862C; }
+
+  /* VALIDATION NOTE */
+  .note { font-size: 11px; color: #888; margin-top: 8px; }
+  .note.warn { color: #c0392b; }
+  .note.ok { color: #1a7a3f; }
+
+  /* BUTTONS */
+  .action-bar { display: flex; gap: 10px; justify-content: flex-end; padding-bottom: 24px; }
+  .btn { height: 40px; padding: 0 20px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; border: none; transition: filter 0.15s; }
+  .btn:hover { filter: brightness(0.92); }
+  .btn-place { background: #B6862C; color: #fff; }
+  .btn-clear { background: #fff; color: #444; border: 1px solid #c8ccd6; }
+  .btn-cancel { background: #fff; color: #c0392b; border: 1px solid #c0392b; }
+
+  /* DIVIDER */
+  .divider { height: 1px; background: #eef0f4; margin: 12px 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">FIU</div>
+  <div class="header-text">
+    <h1>Scavenger Hunt &mdash; Team Shirt Order</h1>
+    <p>All team members must wear matching shirts with FIU&rsquo;s logo &bull; Teams of 3&ndash;5 people</p>
+  </div>
+</div>
+
+<div class="form-body">
+
+  <!-- CUSTOMER INFO -->
+  <div class="section">
+    <div class="section-title">Customer Information</div>
+    <div class="section-body">
+      <div class="grid-2 mb12">
+        <div class="field">
+          <label for="custName">Full Name</label>
+          <input type="text" id="custName" placeholder="Jane Smith" />
+        </div>
+        <div class="field">
+          <label for="teamName">Team Name</label>
+          <input type="text" id="teamName" placeholder="The Panther Squad" />
+        </div>
+      </div>
+      <div class="field mb12">
+        <label for="address">Street Address</label>
+        <input type="text" id="address" placeholder="123 University Blvd" />
+      </div>
+      <div class="grid-3 mb12">
+        <div class="field">
+          <label for="city">City</label>
+          <input type="text" id="city" placeholder="Miami" />
+        </div>
+        <div class="field">
+          <label for="state">State</label>
+          <input type="text" id="state" placeholder="FL" />
+        </div>
+        <div class="field">
+          <label for="zip">ZIP Code</label>
+          <input type="text" id="zip" placeholder="33199" />
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" placeholder="(305) 555-0100" />
+        </div>
+        <div class="field">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" placeholder="jane@fiupanthers.edu" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHIRT OPTIONS -->
+  <div class="section">
+    <div class="section-title">Shirt Options</div>
+    <div class="section-body">
+      <div class="grid-3">
+        <div>
+          <p class="group-label">Shirt Type</p>
+          <div class="radio-group">
+            <label class="opt"><input type="radio" name="shirtType" value="short" checked /> Short Sleeve</label>
+            <label class="opt"><input type="radio" name="shirtType" value="long" /> Long Sleeve</label>
+            <label class="opt"><input type="radio" name="shirtType" value="muscle" /> Sleeveless Muscle Shirt</label>
+          </div>
+        </div>
+        <div>
+          <p class="group-label">Shirt Color</p>
+          <div class="radio-group">
+            <label class="opt"><input type="radio" name="shirtColor" value="white" checked /> White</label>
+            <label class="opt"><input type="radio" name="shirtColor" value="blue" /> Blue (FIU Blue)</label>
+            <label class="opt"><input type="radio" name="shirtColor" value="gold" /> Gold (FIU Gold)</label>
+          </div>
+        </div>
+        <div>
+          <p class="group-label">Payment Method</p>
+          <div class="radio-group">
+            <label class="opt"><input type="radio" name="payment" value="cc" checked /> Credit Card</label>
+            <label class="opt"><input type="radio" name="payment" value="paypal" /> PayPal</label>
+            <label class="opt"><input type="radio" name="payment" value="check" /> Check</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUANTITY BY SIZE -->
+  <div class="section">
+    <div class="section-title">Quantity by Size &nbsp;&mdash;&nbsp; Team requires 3&ndash;5 shirts total &bull; Each shirt $10.00</div>
+    <div class="section-body">
+      <div class="size-grid">
+        <div class="size-card">
+          <div class="size-label">Small</div>
+          <input type="number" id="qS" min="0" max="5" value="0" oninput="calcTotal()" />
+        </div>
+        <div class="size-card">
+          <div class="size-label">Medium</div>
+          <input type="number" id="qM" min="0" max="5" value="0" oninput="calcTotal()" />
+        </div>
+        <div class="size-card">
+          <div class="size-label">Large</div>
+          <input type="number" id="qL" min="0" max="5" value="0" oninput="calcTotal()" />
+        </div>
+        <div class="size-card">
+          <div class="size-label">Extra Large</div>
+          <input type="number" id="qXL" min="0" max="5" value="0" oninput="calcTotal()" />
+        </div>
+      </div>
+      <p class="note" id="sizeNote">Enter quantities above. Total must be between 3 and 5 (one per team member).</p>
+    </div>
+  </div>
+
+  <!-- DELIVERY -->
+  <div class="section">
+    <div class="section-title">Delivery Options</div>
+    <div class="section-body">
+      <p class="group-label">Delivery Method</p>
+      <div style="display:flex; gap:20px; margin-bottom:12px; margin-top:4px;">
+        <label class="opt"><input type="radio" name="delivery" value="pickup" checked onchange="toggleExpress()" /> Pick Up</label>
+        <label class="opt"><input type="radio" name="delivery" value="ship" onchange="toggleExpress()" /> Ship to Customer</label>
+      </div>
+      <div class="express-box" id="expressBox">
+        <label class="opt" style="gap:10px;">
+          <input type="checkbox" id="expressCheck" onchange="calcTotal()" />
+          <div>
+            <div class="express-label">Express Shipping</div>
+            <div class="express-sub">Guaranteed 2-business-day delivery</div>
+          </div>
+        </label>
+        <div class="express-cost">+ $15.00</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOTAL BAR -->
+  <div class="total-bar">
+    <div class="total-lhs">
+      <div class="lbl">Order Total</div>
+      <div class="detail" id="totalDetail">0 shirts &times; $10.00 each</div>
+    </div>
+    <div class="total-amount" id="totalAmount">$0.00</div>
+  </div>
+
+  <!-- ACTION BUTTONS -->
+  <div class="action-bar">
+    <button class="btn btn-cancel" onclick="cancelOrder()">&#10005; Cancel Order</button>
+    <button class="btn btn-clear" onclick="clearForm()">&#8635; Clear Form</button>
+    <button class="btn btn-place" onclick="placeOrder()">&#10003; Place Order</button>
+  </div>
+
+</div><!-- /form-body -->
+
+<script>
+function calcTotal() {
+  var s  = parseInt(document.getElementById('qS').value)  || 0;
+  var m  = parseInt(document.getElementById('qM').value)  || 0;
+  var l  = parseInt(document.getElementById('qL').value)  || 0;
+  var xl = parseInt(document.getElementById('qXL').value) || 0;
+  var total = s + m + l + xl;
+  var express = document.getElementById('expressCheck').checked ? 15 : 0;
+  var cost = total * 10 + express;
+
+  document.getElementById('totalAmount').textContent = '$' + cost.toFixed(2);
+  var det = total + ' shirt' + (total !== 1 ? 's' : '') + ' \u00d7 $10.00';
+  if (express) det += ' + express shipping ($15.00)';
+  document.getElementById('totalDetail').textContent = det;
+
+  var note = document.getElementById('sizeNote');
+  note.className = 'note';
+  if (total === 0)       { note.textContent = 'Enter quantities above. Total must be between 3 and 5 (one per team member).'; }
+  else if (total < 3)    { note.className = 'note warn'; note.textContent = '\u26a0 Need at least ' + (3 - total) + ' more shirt(s). Minimum team size is 3.'; }
+  else if (total > 5)    { note.className = 'note warn'; note.textContent = '\u26a0 Too many shirts. Remove ' + (total - 5) + '. Maximum team size is 5.'; }
+  else                   { note.className = 'note ok';   note.textContent = '\u2713 ' + total + ' shirts ordered — valid team size.'; }
+}
+
+function toggleExpress() {
+  var ship = document.querySelector('input[name="delivery"][value="ship"]').checked;
+  var box  = document.getElementById('expressBox');
+  if (ship) { box.classList.add('active'); }
+  else      { box.classList.remove('active'); document.getElementById('expressCheck').checked = false; }
+  calcTotal();
+}
+
+function placeOrder() {
+  var name  = document.getElementById('custName').value.trim();
+  var team  = document.getElementById('teamName').value.trim();
+  var addr  = document.getElementById('address').value.trim();
+  var city  = document.getElementById('city').value.trim();
+  var state = document.getElementById('state').value.trim();
+  var zip   = document.getElementById('zip').value.trim();
+  var phone = document.getElementById('phone').value.trim();
+  var email = document.getElementById('email').value.trim();
+  var s  = parseInt(document.getElementById('qS').value)  || 0;
+  var m  = parseInt(document.getElementById('qM').value)  || 0;
+  var l  = parseInt(document.getElementById('qL').value)  || 0;
+  var xl = parseInt(document.getElementById('qXL').value) || 0;
+  var total = s + m + l + xl;
+
+  if (!name)  { alert('Please enter the customer name.');    return; }
+  if (!team)  { alert('Please enter the team name.');         return; }
+  if (!addr)  { alert('Please enter the street address.');    return; }
+  if (!city)  { alert('Please enter the city.');              return; }
+  if (!state) { alert('Please enter the state.');             return; }
+  if (!zip)   { alert('Please enter the ZIP code.');          return; }
+  if (!phone) { alert('Please enter the phone number.');      return; }
+  if (!email) { alert('Please enter the email address.');     return; }
+  if (total < 3 || total > 5) { alert('Total shirts must be between 3 and 5.'); return; }
+
+  alert('Order placed successfully!\n\nName: ' + name + '\nTeam: ' + team + '\nShirts: ' + total + '\nTotal: ' + document.getElementById('totalAmount').textContent);
+}
+
+function clearForm() {
+  if (!confirm('Clear all form fields? This cannot be undone.')) return;
+  ['custName','teamName','address','city','state','zip','phone','email'].forEach(function(id){ document.getElementById(id).value = ''; });
+  ['qS','qM','qL','qXL'].forEach(function(id){ document.getElementById(id).value = 0; });
+  document.querySelectorAll('input[name="shirtType"]')[0].checked  = true;
+  document.querySelectorAll('input[name="shirtColor"]')[0].checked = true;
+  document.querySelectorAll('input[name="payment"]')[0].checked    = true;
+  document.querySelectorAll('input[name="delivery"]')[0].checked   = true;
+  document.getElementById('expressCheck').checked = false;
+  toggleExpress();
+  calcTotal();
+}
+
+function cancelOrder() {
+  if (confirm('Cancel this order? All entered information will be lost.')) clearForm();
+}
+</script>
+
+</body>
+</html>
